@@ -169,6 +169,10 @@ class ToTensor(object):
 
         assert(isinstance(disps[0], np.ndarray) and isinstance(disps[1], np.ndarray))
         disps_tensor = [torch.from_numpy(d) for d in disps]
-        disps_tensor = [d.view(1, d.size()[0],d.size()[1]).float() for d in disps_tensor]
+        disps_tensor = [np.sum(d, -1, dtype=float) for d in disps]
+        disps_tensor = [torch.from_numpy(d).float() for d in disps_tensor]
+        disps_tensor = [d.unsqueeze(0) for d in disps_tensor]
+        print([d.shape for d in disps_tensor])
+        disps_tensor = [d.view(1, d.size()[1],d.size()[2]).float() for d in disps_tensor]
         return inputs_tensor, disps_tensor
 

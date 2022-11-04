@@ -154,19 +154,19 @@ def test_stereodeblurnet(cfg, epoch_idx, test_data_loader, dispnet, deblurnet, t
         # Output test results
         print('============================ TEST RESULTS ============================')
         print('[TEST] Total_Mean_PSNR:' + str(img_PSNRs.avg))
-        for name in test_psnr:
-            test_psnr[name]['psnr'] = np.mean(test_psnr[name]['psnr'], axis=0)
-            print('[TEST] Name: {0}\t Num: {1}\t Mean_PSNR: {2}'.format(name, test_psnr[name]['n_samples'],
-                                                                        test_psnr[name]['psnr']))
+        # for name in test_psnr:
+        #     test_psnr[name]['psnr'] = np.mean(test_psnr[name]['psnr'], axis=0)
+        #     print('[TEST] Name: {0}\t Num: {1}\t Mean_PSNR: {2}'.format(name, test_psnr[name]['n_samples'],
+        #                                                                 test_psnr[name]['psnr']))
 
-        result_file = open(os.path.join(cfg.DIR.OUT_PATH, 'test_result.txt'), 'w')
-        sys.stdout = result_file
-        print('============================ TEST RESULTS ============================')
-        print('[TEST] Total_Mean_PSNR:' + str(img_PSNRs.avg))
-        for name in test_psnr:
-            print('[TEST] Name: {0}\t Num: {1}\t Mean_PSNR: {2}'.format(name, test_psnr[name]['n_samples'],
-                                                                        test_psnr[name]['psnr']))
-        result_file.close()
+        # result_file = open(os.path.join(cfg.DIR.OUT_PATH, 'test_result.txt'), 'w')
+        # sys.stdout = result_file
+        # print('============================ TEST RESULTS ============================')
+        # print('[TEST] Total_Mean_PSNR:' + str(img_PSNRs.avg))
+        # for name in test_psnr:
+        #     print('[TEST] Name: {0}\t Num: {1}\t Mean_PSNR: {2}'.format(name, test_psnr[name]['n_samples'],
+        #                                                                 test_psnr[name]['psnr']))
+        # result_file.close()
     else:
         # Output val results
         print('============================ TEST RESULTS ============================')
