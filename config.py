@@ -50,14 +50,13 @@ if cfg.DATASET.DATASET_NAME == 'FlyingThings3D':
 # For Stereo_Blur_Dataset
 elif cfg.DATASET.DATASET_NAME == 'StereoDeblur':
       __C.DIR.DATASET_JSON_FILE_PATH        = './datasets/stereo_deblur_data.json'
-      __C.DIR.DATASET_ROOT                  = '/data1/stereo_deblur_data_final_gamma/'
+      __C.DIR.DATASET_ROOT                  = './input/'
       __C.DIR.IMAGE_LEFT_BLUR_PATH          = __C.DIR.DATASET_ROOT + '%s/image_left_blur_ga/%s.png'
       __C.DIR.IMAGE_LEFT_CLEAR_PATH         = __C.DIR.DATASET_ROOT + '%s/image_left/%s.png'
       __C.DIR.IMAGE_RIGHT_BLUR_PATH         = __C.DIR.DATASET_ROOT + '%s/image_right_blur_ga/%s.png'
       __C.DIR.IMAGE_RIGHT_CLEAR_PATH        = __C.DIR.DATASET_ROOT + '%s/image_right/%s.png'
       __C.DIR.DISPARITY_LEFT_PATH           = __C.DIR.DATASET_ROOT + '%s/disparity_left/%s.exr'
       __C.DIR.DISPARITY_RIGHT_PATH          = __C.DIR.DATASET_ROOT + '%s/disparity_right/%s.exr'
-
 #
 # data augmentation
 #
