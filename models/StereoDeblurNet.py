@@ -77,9 +77,13 @@ class StereoDeblurNet(nn.Module):
         convd_right = self.convd_3(self.convd_2(self.convd_1(conv3_right)))
 
         b, c, h, w = convd_left.shape
-
-        warp_img_left = disp_warp(img_right, -disp_left*cfg.DATA.DIV_DISP, cuda=True)
-        warp_img_right = disp_warp(img_left, disp_right*cfg.DATA.DIV_DISP, cuda=True)
+        # print('img_right.shape', img_right.shape)
+        # print('convd_left.shape', (-disp_left*cfg.DATA.DIV_DISP).shape)
+        new_size = (disp_left*cfg.DATA.DIV_DISP)
+        new_size = new_size[:, :img_right.shape[2], :img_right.shape[3]]
+        # print('new_size', new_size.shape)
+        warp_img_left = disp_warp(img_right, -new_size, cuda=True)
+        warp_img_right = disp_warp(img_left, new_size, cuda=True)
         diff_left = torch.sum(torch.abs(img_left - warp_img_left), 1).view(b,1,*warp_img_left.shape[-2:])
         diff_right = torch.sum(torch.abs(img_right - warp_img_right), 1).view(b,1,*warp_img_right.shape[-2:])
         diff_2_left = nn.functional.adaptive_avg_pool2d(diff_left, (h, w))
@@ -109,6 +113,9 @@ class StereoDeblurNet(nn.Module):
         upconv3_left = self.upconv3_1(self.upconv3_2(self.upconv3_3(cat3_left)))                       # upconv3 feature
 
         upconv2_u_left = self.upconv2_u(upconv3_left)
+        upconv2_u_left = upconv2_u_left[:, :, 0:conv2_left.size()[2], 0:conv2_left.size()[3]]
+        # print('upconv2_u_left.shape', upconv2_u_left.shape)
+        # print('conv2_left.shape', conv2_left.shape)
         cat2_left = self.upconv2_i(torch.cat([conv2_left, upconv2_u_left],1))
         upconv2_left = self.upconv2_1(self.upconv2_2(self.upconv2_3(cat2_left)))                       # upconv2 feature
         upconv1_u_left = self.upconv1_u(upconv2_left)
@@ -122,6 +129,8 @@ class StereoDeblurNet(nn.Module):
         upconv3_right = self.upconv3_1(self.upconv3_2(self.upconv3_3(cat3_right)))                     # upconv3 feature
 
         upconv2_u_right = self.upconv2_u(upconv3_right)
+        upconv2_u_right = upconv2_u_right[:, :, 0:conv2_right.size()[2], 0:conv2_right.size()[3]]
+        
         cat2_right = self.upconv2_i(torch.cat([conv2_right, upconv2_u_right], 1))
         upconv2_right = self.upconv2_1(self.upconv2_2(self.upconv2_3(cat2_right)))                     # upconv2 feature
         upconv1_u_right = self.upconv1_u(upconv2_right)
