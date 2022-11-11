@@ -43,8 +43,14 @@ def test_stereodeblurnet(cfg, epoch_idx, test_data_loader, dispnet, deblurnet, t
             save_num = 0
         save_num = save_num+1
         # Switch models to testing mode
+
+        print('[INFO] {0} Test start.')
+        start = dt.now()
         dispnet.eval()
         deblurnet.eval()
+        end = dt.now()
+        print('[INFO] {0} Test complete. Total time: {1}'.format(end, end - start))
+
         if cfg.NETWORK.PHASE == 'test':
             assert (len(names) == 1)
             name = names[0]

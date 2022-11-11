@@ -115,7 +115,7 @@ def bulid_net(cfg):
             dispnet.load_state_dict(checkpoint['dispnet_state_dict'])
             deblurnet.load_state_dict(checkpoint['deblurnet_state_dict'])
             print('[INFO] {0} Recover complete. Best_Img_PSNR = {1}'.format(dt.now(), Best_Img_PSNR))
-
+            end = dt.now()
 
     # Set up learning rate scheduler to decay learning rates dynamically
     dispnet_lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(dispnet_solver,
@@ -165,3 +165,5 @@ def bulid_net(cfg):
             return
         elif cfg.NETWORK.MODULE == 'all':
             test_stereodeblurnet(cfg, init_epoch, test_data_loader, dispnet, deblurnet, test_writer)
+            
+            
