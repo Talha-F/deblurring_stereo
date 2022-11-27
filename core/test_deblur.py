@@ -30,6 +30,7 @@ def test_deblurnet(cfg, epoch_idx, test_data_loader, deblurnet, test_writer):
     batch_time = utils.network_utils.AverageMeter()
     data_time = utils.network_utils.AverageMeter()
     img_PSNRs = utils.network_utils.AverageMeter()
+
     batch_end_time = time()
 
     test_psnr = dict()
@@ -50,7 +51,7 @@ def test_deblurnet(cfg, epoch_idx, test_data_loader, deblurnet, test_writer):
             if not name in test_psnr:
                 test_psnr[name] = {
                     'n_samples': 0,
-                    'psnr': []
+                    'psnr': [],
                 }
 
         with torch.no_grad():
@@ -59,13 +60,18 @@ def test_deblurnet(cfg, epoch_idx, test_data_loader, deblurnet, test_writer):
             img_blur_left, img_blur_right, img_clear_left, img_clear_right = imgs
 
             # Test the decoder
+            start_time = time()
             output_img_clear_left = deblurnet(img_blur_left)
             output_img_clear_right = deblurnet(img_blur_right)
+            end_time = time()
+            print('time: ', end_time-start_time)
+            
 
             # Append loss and accuracy to average metrics
             img_PSNR = PSNR(output_img_clear_left, img_clear_left) / 2 + PSNR(output_img_clear_right, img_clear_right) / 2
             img_PSNRs.update(img_PSNR.item(), cfg.CONST.TEST_BATCH_SIZE)
-
+            
+    
             if cfg.NETWORK.PHASE == 'test':
                 test_psnr[name]['n_samples'] += 1
                 test_psnr[name]['psnr'].append(img_PSNR)

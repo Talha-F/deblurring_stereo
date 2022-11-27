@@ -4,6 +4,7 @@
 # Developed by Shangchen Zhou <shangchenzhou@gmail.com>
 
 from models.submodules import *
+import torch.nn.functional as F
 
 class DispNet_Bi(nn.Module):
     def __init__(self):
@@ -55,6 +56,7 @@ class DispNet_Bi(nn.Module):
         self.disp0 = predict_disp_bi(32)
 
     def forward(self, x):
+        # print("mysize", x.size())
         # encoder
         conv0 = self.conv0(x)
         conv1 = self.conv1_2(self.conv1_1(conv0))
@@ -66,7 +68,6 @@ class DispNet_Bi(nn.Module):
         # decoder
         upconvd_i = self.upconvd_i(convd)
         disp4 = self.dispd(upconvd_i)
-
         upconv3 = self.upconv3(upconvd_i)
         cat3 = torch.cat([conv3, upconv3, disp4], 1)
         upconv3_i = self.upconv3_f(self.upconv3_i(cat3))
@@ -74,6 +75,14 @@ class DispNet_Bi(nn.Module):
 
         updisp3 = self.updisp3(disp3)
         upconv2 = self.upconv2(upconv3_i)
+
+        # print("conv2", conv2.size())
+        upconv2 = upconv2[:, :, 0:conv2.size()[2], 0:conv2.size()[3]]
+
+        updisp3 = updisp3[:, :, 0:conv2.size()[2], 0:conv2.size()[3]]
+        # print("upconv2", upconv2.size())
+        # print("updisp3", updisp3.size())
+
         cat2 = torch.cat([conv2, upconv2, updisp3], 1)
         upconv2_i = self.upconv2_f(self.upconv2_i(cat2))
         disp2 = self.disp2(upconv2_i) + updisp3
