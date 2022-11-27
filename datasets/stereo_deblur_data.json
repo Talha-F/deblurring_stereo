@@ -1,10 +1,10 @@
 [
     {
-        "name": "Test",
+        "name": "Train",
         "category": "Street",
-        "phase": "Test",
+        "phase": "Train",
         "merge_num": 5,
-        "pair_num": 1,
+        "pair_num": 200,
         "sample": [
             "1666313493648_motion_25"
         ]
