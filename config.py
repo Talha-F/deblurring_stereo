@@ -55,8 +55,8 @@ elif cfg.DATASET.DATASET_NAME == 'StereoDeblur':
       __C.DIR.IMAGE_LEFT_CLEAR_PATH         = __C.DIR.DATASET_ROOT + '%s/image_left/%s.png'
       __C.DIR.IMAGE_RIGHT_BLUR_PATH         = __C.DIR.DATASET_ROOT + '%s/image_right_blur_ga/%s.png'
       __C.DIR.IMAGE_RIGHT_CLEAR_PATH        = __C.DIR.DATASET_ROOT + '%s/image_right/%s.png'
-      __C.DIR.DISPARITY_LEFT_PATH           = __C.DIR.DATASET_ROOT + '%s/disparity_left/%s.exr'
-      __C.DIR.DISPARITY_RIGHT_PATH          = __C.DIR.DATASET_ROOT + '%s/disparity_right/%s.exr'
+      __C.DIR.DISPARITY_LEFT_PATH           = __C.DIR.DATASET_ROOT + '%s/disparity_left/%s.png'
+      __C.DIR.DISPARITY_RIGHT_PATH          = __C.DIR.DATASET_ROOT + '%s/disparity_right/%s.png'
 #
 # data augmentation
 #
