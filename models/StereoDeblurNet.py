@@ -80,7 +80,7 @@ class StereoDeblurNet(nn.Module):
         # print('img_right.shape', img_right.shape)
         # print('convd_left.shape', (-disp_left*cfg.DATA.DIV_DISP).shape)
         new_size = (disp_left*cfg.DATA.DIV_DISP)
-        # new_size = new_size[:, :img_right.shape[2], :img_right.shape[3]]
+        new_size = new_size[:, :img_right.shape[2], :img_right.shape[3]]
         # print('new_size', new_size.shape)
         warp_img_left = disp_warp(img_right, -new_size, cuda=True)
         warp_img_right = disp_warp(img_left, new_size, cuda=True)
@@ -113,7 +113,7 @@ class StereoDeblurNet(nn.Module):
         upconv3_left = self.upconv3_1(self.upconv3_2(self.upconv3_3(cat3_left)))                       # upconv3 feature
 
         upconv2_u_left = self.upconv2_u(upconv3_left)
-        # upconv2_u_left = upconv2_u_left[:, :, 0:conv2_left.size()[2], 0:conv2_left.size()[3]]
+        upconv2_u_left = upconv2_u_left[:, :, 0:conv2_left.size()[2], 0:conv2_left.size()[3]]
         # print('upconv2_u_left.shape', upconv2_u_left.shape)
         # print('conv2_left.shape', conv2_left.shape)
         cat2_left = self.upconv2_i(torch.cat([conv2_left, upconv2_u_left],1))
