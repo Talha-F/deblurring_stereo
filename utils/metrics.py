@@ -9,7 +9,7 @@ from skimage.metrics import structural_similarity as ssim
 def SSIM(output, target):
     output = output.clamp(0.0,1.0)
     return ssim(output, target, data_range=1.0, multichannel=True)
-	
+
 def PSNR(output, target, max_val = 1.0):
     output = output.clamp(0.0,1.0)
     mse = torch.pow(target - output, 2).mean()
@@ -21,3 +21,4 @@ def RMSE(output, target):
     output = output.clamp(0.0,1.0)
     mse = torch.pow(target - output, 2).mean()
     return math.sqrt(mse)
+    

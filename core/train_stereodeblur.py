@@ -17,7 +17,7 @@ from time import time
 
 from core.test_stereodeblur import test_stereodeblurnet
 from models.VGG19 import VGG19
-
+from utils import metrics
 
 def train_stereodeblurnet(cfg, init_epoch, train_data_loader, val_data_loader,
                                   dispnet, dispnet_solver, dispnet_lr_scheduler,
@@ -38,6 +38,8 @@ def train_stereodeblurnet(cfg, init_epoch, train_data_loader, val_data_loader,
             deblur_percept_losses = utils.network_utils.AverageMeter()
         deblur_losses = utils.network_utils.AverageMeter()
         img_PSNRs = utils.network_utils.AverageMeter()
+        # img_SSIMs = utils.network_utils.AverageMeter()
+        img_RMSEs = utils.network_utils.AverageMeter()
 
         # Adjust learning rate
         dispnet_lr_scheduler.step()
@@ -95,6 +97,10 @@ def train_stereodeblurnet(cfg, init_epoch, train_data_loader, val_data_loader,
 
             img_PSNR = (PSNR(imgs_prd[0], img_clear_left) + PSNR(imgs_prd[1], img_clear_right)) / 2
             img_PSNRs.update(img_PSNR.item(), cfg.CONST.TRAIN_BATCH_SIZE)
+            # img_SSIM = (metrics.SSIM(imgs_prd[0], img_clear_left) + metrics.SSIM(imgs_prd[1], img_clear_right)) / 2
+            # img_SSIMs.update(img_SSIM.item(), cfg.CONST.TRAIN_BATCH_SIZE)
+            img_RMSE = (metrics.RMSE(imgs_prd[0], img_clear_left) + metrics.RMSE(imgs_prd[1], img_clear_right)) / 2
+            img_RMSEs.update(img_RMSE, cfg.CONST.TRAIN_BATCH_SIZE)
 
             deblurnet_solver.zero_grad()
             deblurnet_loss = deblur_loss
@@ -108,7 +114,7 @@ def train_stereodeblurnet(cfg, init_epoch, train_data_loader, val_data_loader,
             train_writer.add_scalar('StereoDeblurNet/DeblurMSELoss_0_TRAIN', deblur_mse_loss.item(), n_itr)
             if cfg.TRAIN.USE_PERCET_LOSS == True:
                 train_writer.add_scalar('StereoDeblurNet/DeblurPerceptLoss_0_TRAIN', deblur_percept_loss.item(), n_itr)
-
+        
             # Tick / tock
             batch_time.update(time() - batch_end_time)
             batch_end_time = time()
@@ -145,6 +151,8 @@ def train_stereodeblurnet(cfg, init_epoch, train_data_loader, val_data_loader,
         # Append epoch loss to TensorBoard
         train_writer.add_scalar('StereoDeblurNet/EpochEPE_0_TRAIN', disp_EPEs.avg, epoch_idx + 1)
         train_writer.add_scalar('StereoDeblurNet/EpochPSNR_0_TRAIN', img_PSNRs.avg, epoch_idx + 1)
+        # train_writer.add_scalar('DeblurNet/EpochSSIM_0_TRAIN', img_SSIMs.avg, epoch_idx + 1)
+        train_writer.add_scalar('DeblurNet/EpochRMSE_0_TRAIN', img_RMSEs.avg, epoch_idx + 1)
 
         # Tick / tock
         epoch_end_time = time()

@@ -11,6 +11,7 @@ import utils.data_transforms
 import utils.network_utils
 from losses.multiscaleloss import *
 import torchvision
+from utils import metrics
 
 from time import time
 
@@ -31,6 +32,9 @@ def test_stereodeblurnet(cfg, epoch_idx, test_data_loader, dispnet, deblurnet, t
     data_time = utils.network_utils.AverageMeter()
     disp_EPEs = utils.network_utils.AverageMeter()
     img_PSNRs = utils.network_utils.AverageMeter()
+    # img_SSIMs = utils.network_utils.AverageMeter()
+    img_RMSEs = utils.network_utils.AverageMeter()
+
     batch_end_time = time()
     test_psnr = dict()
     g_names= 'init'
@@ -91,7 +95,12 @@ def test_stereodeblurnet(cfg, epoch_idx, test_data_loader, dispnet, deblurnet, t
             disp_EPEs.update(disp_EPE.item(), cfg.CONST.TEST_BATCH_SIZE)
 
             img_PSNR = (PSNR(imgs_prd[0], img_clear_left) + PSNR(imgs_prd[1], img_clear_right)) / 2
+            # img_SSIM = (metrics.SSIM(imgs_prd[0], img_clear_left) + metrics.SSIM(imgs_prd[1], img_clear_right)) / 2
+            img_RMSE = (metrics.RMSE(imgs_prd[0], img_clear_left) + metrics.RMSE(imgs_prd[1], img_clear_right)) / 2
+            
             img_PSNRs.update(img_PSNR.item(), cfg.CONST.TRAIN_BATCH_SIZE)
+            # img_SSIMs.update(img_SSIM.item(), cfg.CONST.TRAIN_BATCH_SIZE)
+            img_RMSEs.update(img_RMSE, cfg.CONST.TRAIN_BATCH_SIZE)
 
             if cfg.NETWORK.PHASE == 'test':
                 test_psnr[name]['n_samples'] += 1
@@ -183,5 +192,7 @@ def test_stereodeblurnet(cfg, epoch_idx, test_data_loader, dispnet, deblurnet, t
         # Add testing results to TensorBoard
         test_writer.add_scalar('StereoDeblurNet/EpochEPE_1_TEST', disp_EPEs.avg, epoch_idx + 1)
         test_writer.add_scalar('StereoDeblurNet/EpochPSNR_1_TEST', img_PSNRs.avg, epoch_idx + 1)
+        # test_writer.add_scalar('StereoDeblurNet/EpochSSIM_1_TEST', img_SSIMs.avg, epoch_idx + 1)
+        test_writer.add_scalar('StereoDeblurNet/EpochRMSE_1_TEST', img_RMSEs.avg, epoch_idx + 1)
 
         return disp_EPEs.avg, img_PSNRs.avg

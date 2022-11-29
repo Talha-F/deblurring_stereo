@@ -17,6 +17,7 @@ from time import time
 
 from core.test_deblur import test_deblurnet
 from models.VGG19 import VGG19
+from utils import metrics
 
 
 def train_deblurnet(cfg, init_epoch, train_data_loader, val_data_loader, deblurnet, deblurnet_solver,
@@ -35,6 +36,8 @@ def train_deblurnet(cfg, init_epoch, train_data_loader, val_data_loader, deblurn
         if cfg.TRAIN.USE_PERCET_LOSS:
             percept_losses = utils.network_utils.AverageMeter()
         img_PSNRs = utils.network_utils.AverageMeter()
+        # img_SSIMs = utils.network_utils.AverageMeter()
+        img_RMSEs = utils.network_utils.AverageMeter()
 
         # Adjust learning rate
         deblurnet_lr_scheduler.step()
@@ -60,6 +63,7 @@ def train_deblurnet(cfg, init_epoch, train_data_loader, val_data_loader, deblurn
             output_img_clear_left = deblurnet(img_blur_left)
 
             mse_left_loss  = mseLoss(output_img_clear_left, img_clear_left)
+            
             if cfg.TRAIN.USE_PERCET_LOSS:
                 percept_left_loss  = perceptualLoss(output_img_clear_left, img_clear_left, vggnet)
                 deblur_left_loss  = mse_left_loss + 0.01 * percept_left_loss
@@ -67,6 +71,8 @@ def train_deblurnet(cfg, init_epoch, train_data_loader, val_data_loader, deblurn
                 deblur_left_loss = mse_left_loss
 
             img_PSNR_left = PSNR(output_img_clear_left, img_clear_left)
+            rmse_left = metrics.RMSE(output_img_clear_left, img_clear_left)
+            # ssim_left = metrics.SSIM(output_img_clear_left, img_clear_left)
 
             # Gradient decent
             deblurnet_solver.zero_grad()
@@ -82,6 +88,8 @@ def train_deblurnet(cfg, init_epoch, train_data_loader, val_data_loader, deblurn
                 deblur_right_loss = mse_right_loss
 
             img_PSNR_right = PSNR(output_img_clear_right, img_clear_right)
+            rmse_right = metrics.RMSE(output_img_clear_right, img_clear_right)
+            # ssim_right = metrics.SSIM(output_img_clear_right, img_clear_right)
 
             # Gradient decent
             deblurnet_solver.zero_grad()
@@ -98,6 +106,11 @@ def train_deblurnet(cfg, init_epoch, train_data_loader, val_data_loader, deblurn
             deblur_losses.update(deblur_loss.item(), cfg.CONST.TRAIN_BATCH_SIZE)
             img_PSNR = img_PSNR_left / 2 + img_PSNR_right / 2
             img_PSNRs.update(img_PSNR.item(), cfg.CONST.TRAIN_BATCH_SIZE)
+
+            # img_SSIM = ssim_left / 2 + ssim_right / 2
+            img_RMSE = rmse_left / 2 + rmse_right / 2
+            # img_SSIMs.update(img_SSIM.item(), cfg.CONST.TRAIN_BATCH_SIZE)
+            img_RMSEs.update(img_RMSE, cfg.CONST.TRAIN_BATCH_SIZE)
             
             # Append loss to TensorBoard
             n_itr = epoch_idx * n_batches + batch_idx
@@ -105,7 +118,7 @@ def train_deblurnet(cfg, init_epoch, train_data_loader, val_data_loader, deblurn
             if cfg.TRAIN.USE_PERCET_LOSS:
                 train_writer.add_scalar('DeblurNet/PerceptLoss_0_TRAIN', percept_loss.item(), n_itr)
             train_writer.add_scalar('DeblurNet/DeblurLoss_0_TRAIN', deblur_loss.item(), n_itr)
-
+            
             # Tick / tock
             batch_time.update(time() - batch_end_time)
             batch_end_time = time()
@@ -132,16 +145,19 @@ def train_deblurnet(cfg, init_epoch, train_data_loader, val_data_loader, deblurn
                 result = torchvision.utils.make_grid(result, nrow=1, normalize=True)
                 train_writer.add_image('DeblurNet/TRAIN_RESULT' + str(batch_idx + 1), result, epoch_idx + 1)
 
-
+        
         # Append epoch loss to TensorBoard
         train_writer.add_scalar('DeblurNet/EpochPSNR_0_TRAIN', img_PSNRs.avg, epoch_idx + 1)
-
+        # train_writer.add_scalar('DeblurNet/EpochSSIM_0_TRAIN', img_SSIMs.avg, epoch_idx + 1)
+        train_writer.add_scalar('DeblurNet/EpochRMSE_0_TRAIN', img_RMSEs.avg, epoch_idx + 1)
+        
         # Tick / tock
         epoch_end_time = time()
         print('[TRAIN] [Epoch {0}/{1}]\t EpochTime {2}\t DeblurLoss_avg {3}\t ImgPSNR_avg {4}'
               .format(epoch_idx + 1, cfg.TRAIN.NUM_EPOCHES, epoch_end_time - epoch_start_time, deblur_losses.avg,
                       img_PSNRs.avg))
-
+        train_writer.add_scalar('DeblurNet/EpochTime_0_TRAIN', epoch_end_time - epoch_start_time, epoch_idx + 1)
+        
         # Validate the training models
         img_PSNR = test_deblurnet(cfg, epoch_idx, val_data_loader, deblurnet, val_writer)
 
