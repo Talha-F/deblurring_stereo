@@ -239,8 +239,8 @@ class StereoDeblurNet(nn.Module):
 
         self.tail3_1 = conv(wf, 3, kernel_size, bias=bias)
         self.tail3_2 = conv(wf, 3, kernel_size, bias=bias)
-        self.tail3_3 = conv(wf, 3, kernel_size, bias=bias)
-
+        self.tail3_3 = conv(wf, 128, kernel_size, bias=bias)
+        
         ks = 3
         self.conv1_1 = conv(3, 32, kernel_size=ks, stride=1)
         self.conv1_2 = resnet_block(32, kernel_size=ks)
@@ -260,7 +260,7 @@ class StereoDeblurNet(nn.Module):
         dilation = [1,2,3,4]
         self.convd_1 = resnet_block(128, kernel_size=ks, dilation = [2, 1])
         self.convd_2 = resnet_block(128, kernel_size=ks, dilation = [3, 1])
-        self.convd_3 = ms_dilate_block(128, kernel_size=ks, dilation = dilation)
+        self.convd_3 = ms_dilate_block(356, kernel_size=ks, dilation = dilation)
 
         self.gatenet = gatenet()
 
@@ -379,13 +379,20 @@ class StereoDeblurNet(nn.Module):
         # res3_1_right= self.tail3_1(d3_1f_right[0])+ img_right
         # res3_2_left = self.tail3_2(d3_2f_left[0]) + img_left
         # res3_2_right= self.tail3_2(d3_2f_right[0])+ img_right
-        print('final')
-        res3_3_left = self.tail3_3(d3_3f_left[0]) + img_left
-        res3_3_right= self.tail3_3(d3_3f_right[0])+ img_right
+        
+        res3_3_left = self.tail3_3(d3_3f_left[0]) 
+        res3_3_right= self.tail3_3(d3_3f_right[0])
+        # res3_3_left = res3_3_left + img_left
+        # res3_3_right= res3_3_right+ img_right
+        print('res3_3_left.shape', res3_3_left.shape)
+        res3_3_left = nn.functional.adaptive_avg_pool2d(res3_3_left, (64, 64))
+        res3_3_right= nn.functional.adaptive_avg_pool2d(res3_3_right,(64, 64))
 
+        print('res3_3_left_max.shape', res3_3_left.shape)
+        
         b, c, h, w = res3_3_left.shape
+        print('res3_3_left.shape', res3_3_left.shape)
         print('img_right.shape', img_right.shape)
-        print('convd_left.shape', (-disp_left*cfg.DATA.DIV_DISP).shape)
         new_size = (disp_left*cfg.DATA.DIV_DISP)
         new_size = new_size[:, :img_right.shape[2], :img_right.shape[3]]
         print('new_size', new_size.shape)
@@ -414,9 +421,6 @@ class StereoDeblurNet(nn.Module):
         warp_convd_right = disp_warp(res3_3_left, disp_2_right)
 
         # aggregate features
-        print("res3",res3_3_left.shape)
-        print("res3",res3_3_right.shape)
-
         agg_left  = res3_3_left * (1.0-gate_left) + warp_convd_left * gate_left.repeat(1,c,1,1)
         agg_right = res3_3_right * (1.0-gate_right) + warp_convd_right * gate_right.repeat(1,c,1,1)
         print('agg_left.shape', agg_left.shape)
@@ -430,7 +434,7 @@ class StereoDeblurNet(nn.Module):
         upconv2_u_left = self.upconv2_u(upconv3_left)
         upconv2_u_left = upconv2_u_left[:, :, 0:res3_3_left.size()[2], 0:res3_3_left.size()[3]]
         print('upconv2_u_left.shape', upconv2_u_left.shape)
-        # print('conv2_left.shape', conv2_left.shape)
+        print('res3_3_left.shape', res3_3_left.shape)
         cat2_left = self.upconv2_i(torch.cat([res3_3_left, upconv2_u_left],1))
         upconv2_left = self.upconv2_1(self.upconv2_2(self.upconv2_3(cat2_left)))                       # upconv2 feature
         upconv1_u_left = self.upconv1_u(upconv2_left)
