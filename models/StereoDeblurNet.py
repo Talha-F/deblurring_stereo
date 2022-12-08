@@ -391,6 +391,8 @@ class StereoDeblurNet(nn.Module):
         print('new_size', new_size.shape)
         warp_img_left = disp_warp(img_right, -new_size, cuda=True)
         warp_img_right = disp_warp(img_left, new_size, cuda=True)
+        print('warp_img_left.shape', warp_img_left.shape)
+        print('warp_img_right.shape', warp_img_right.shape)
         diff_left = torch.sum(torch.abs(img_left - warp_img_left), 1).view(b,1,*warp_img_left.shape[-2:])
         diff_right = torch.sum(torch.abs(img_right - warp_img_right), 1).view(b,1,*warp_img_right.shape[-2:])
         diff_2_left = nn.functional.adaptive_avg_pool2d(diff_left, (h, w))
@@ -412,8 +414,14 @@ class StereoDeblurNet(nn.Module):
         warp_convd_right = disp_warp(res3_3_left, disp_2_right)
 
         # aggregate features
+        print("res3",res3_3_left.shape)
+        print("res3",res3_3_right.shape)
+
         agg_left  = res3_3_left * (1.0-gate_left) + warp_convd_left * gate_left.repeat(1,c,1,1)
         agg_right = res3_3_right * (1.0-gate_right) + warp_convd_right * gate_right.repeat(1,c,1,1)
+        print('agg_left.shape', agg_left.shape)
+        print('agg_right.shape', agg_right.shape)
+        
 
         # decoder-left
         cat3_left = self.upconv3_i(torch.cat([res3_3_left, agg_left, depth_aware_left], 1))
