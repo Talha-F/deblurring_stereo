@@ -221,7 +221,7 @@ class StereoDeblurNet(nn.Module):
         self.D2_2 = Decoder(wf, scale, vscale, kernel_size, reduction, act, bias)
 
         self.tail2_1 = Tail_shuffle(wf, 12, kernel_size, bias=bias)
-        self.tail2_2 = Tail_shuffle(wf, 12, kernel_size, bias=bias)
+        self.tail2_2 = Tail_shuffle(wf, 64, kernel_size, bias=bias)
         ################################################################################
         #scale3
         self.shallow_feat3 = nn.Sequential(conv(3, wf, kernel_size, bias=bias), ResBlock(wf,kernel_size, reduction, bias=bias, act=act))
@@ -240,7 +240,7 @@ class StereoDeblurNet(nn.Module):
         self.tail3_1 = conv(wf, 3, kernel_size, bias=bias)
         self.tail3_2 = conv(wf, 3, kernel_size, bias=bias)
         self.tail3_3 = conv(wf, 128, kernel_size, bias=bias)
-        
+        self.upconv = conv(16, 64, kernel_size, bias=bias)
         ks = 3
         self.conv1_1 = conv(3, 32, kernel_size=ks, stride=1)
         self.conv1_2 = resnet_block(32, kernel_size=ks)
@@ -344,9 +344,12 @@ class StereoDeblurNet(nn.Module):
         e2_2f_right= self.E2_2(d2_1f_right[0],e2_1f_right,d2_1f_right)
         d2_2f_left = self.D2_2(e2_2f_left)
         d2_2f_right= self.D2_2(e2_2f_right)
-
-        # res2_1_left = self.tail2_1(d2_1f_left[0]) + img_left
-        # res2_1_right= self.tail2_1(d2_1f_right[0])+ img_right
+        
+        res2_2_left = self.tail2_2(d2_2f_left[0])
+        res2_2_right= self.tail2_2(d2_2f_right[0])
+        res2_2_left = self.upconv(res2_2_left)
+        print(res2_2_left.shape)
+        
 
         ##-------------------------------------------
         ##-------------- Scale 3---------------------
@@ -382,13 +385,19 @@ class StereoDeblurNet(nn.Module):
         
         res3_3_left = self.tail3_3(d3_3f_left[0]) 
         res3_3_right= self.tail3_3(d3_3f_right[0])
+
+        print('res2_2_left.shape', res2_2_left.shape)
         # res3_3_left = res3_3_left + img_left
         # res3_3_right= res3_3_right+ img_right
         print('res3_3_left.shape', res3_3_left.shape)
         res3_3_left = nn.functional.adaptive_avg_pool2d(res3_3_left, (64, 64))
         res3_3_right= nn.functional.adaptive_avg_pool2d(res3_3_right,(64, 64))
 
+        res2_2_left = nn.functional.adaptive_avg_pool2d(res2_2_left, (128, 128))
+        res2_2_right= nn.functional.adaptive_avg_pool2d(res2_2_right,(128, 128))
+
         print('res3_3_left_max.shape', res3_3_left.shape)
+        print('res2_2_left.shape', res2_2_left.shape)
         
         b, c, h, w = res3_3_left.shape
         print('res3_3_left.shape', res3_3_left.shape)
@@ -429,16 +438,19 @@ class StereoDeblurNet(nn.Module):
 
         # decoder-left
         cat3_left = self.upconv3_i(torch.cat([res3_3_left, agg_left, depth_aware_left], 1))
-        upconv3_left = self.upconv3_1(self.upconv3_2(self.upconv3_3(cat3_left)))                       # upconv3 feature
+        print('depth_aware_left.shape', depth_aware_left.shape)
+        upconv3_left = self.upconv3_1(self.upconv3_2(self.upconv3_3(cat3_left)))     
+        print('upconv3', upconv3_left.shape)                  # upconv3 feature
 
         upconv2_u_left = self.upconv2_u(upconv3_left)
-        upconv2_u_left = upconv2_u_left[:, :, 0:res3_3_left.size()[2], 0:res3_3_left.size()[3]]
+        print('upconv2_u_left.shape', upconv2_u_left.shape)
+        upconv2_u_left = upconv2_u_left[:, :, 0:128, 0:128]
         print('upconv2_u_left.shape', upconv2_u_left.shape)
         print('res3_3_left.shape', res3_3_left.shape)
-        cat2_left = self.upconv2_i(torch.cat([res3_3_left, upconv2_u_left],1))
+        cat2_left = self.upconv2_i(torch.cat([res2_2_left, upconv2_u_left],1))
         upconv2_left = self.upconv2_1(self.upconv2_2(self.upconv2_3(cat2_left)))                       # upconv2 feature
         upconv1_u_left = self.upconv1_u(upconv2_left)
-        cat1_left = self.upconv1_i(torch.cat([res3_3_left, upconv1_u_left], 1))
+        cat1_left = self.upconv1_i(torch.cat([upconv2_u_left, upconv1_u_left], 1))
 
         upconv1_left = self.upconv1_1(self.upconv1_2(self.upconv1_3(cat1_left)))                       # upconv1 feature
         img_prd_left = self.img_prd(upconv1_left) + img_left                                           # predict img
