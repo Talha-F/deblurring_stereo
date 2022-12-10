@@ -284,7 +284,8 @@ class StereoDeblurNet(nn.Module):
         self.upconv1_3 = resnet_block(32, kernel_size=ks)
         self.upconv1_2 = resnet_block(32, kernel_size=ks)
         self.upconv1_1 = resnet_block(32, kernel_size=ks)
-
+        self.upconv_first = upconv(128, 64)
+        self.upconv_second = upconv(64, 32)
         self.img_prd = conv(32, 3, kernel_size=ks, stride=1)
 
 
@@ -300,7 +301,7 @@ class StereoDeblurNet(nn.Module):
         interpolation = nn.Upsample(scale_factor=0.5, mode = 'bilinear',align_corners=True)
         s2_blur_left = interpolation(img_left)
         s2_blur_right= interpolation(img_right)
-         ##-------------------------------------------
+        ##-------------------------------------------
         ##-------------- Scale 1---------------------
         ##-------------------------------------------
         s1_blur_ps_left = self.pixel_unshuffle(s2_blur_left)
@@ -348,8 +349,6 @@ class StereoDeblurNet(nn.Module):
         res2_2_left = self.tail2_2(d2_2f_left[0])
         res2_2_right= self.tail2_2(d2_2f_right[0])
         res2_2_left = self.upconv(res2_2_left)
-        print(res2_2_left.shape)
-        
 
         ##-------------------------------------------
         ##-------------- Scale 3---------------------
@@ -386,29 +385,22 @@ class StereoDeblurNet(nn.Module):
         res3_3_left = self.tail3_3(d3_3f_left[0]) 
         res3_3_right= self.tail3_3(d3_3f_right[0])
 
-        print('res2_2_left.shape', res2_2_left.shape)
         # res3_3_left = res3_3_left + img_left
         # res3_3_right= res3_3_right+ img_right
-        print('res3_3_left.shape', res3_3_left.shape)
         res3_3_left = nn.functional.adaptive_avg_pool2d(res3_3_left, (64, 64))
         res3_3_right= nn.functional.adaptive_avg_pool2d(res3_3_right,(64, 64))
 
         res2_2_left = nn.functional.adaptive_avg_pool2d(res2_2_left, (128, 128))
         res2_2_right= nn.functional.adaptive_avg_pool2d(res2_2_right,(128, 128))
 
-        print('res3_3_left_max.shape', res3_3_left.shape)
-        print('res2_2_left.shape', res2_2_left.shape)
-        
         b, c, h, w = res3_3_left.shape
-        print('res3_3_left.shape', res3_3_left.shape)
-        print('img_right.shape', img_right.shape)
+
         new_size = (disp_left*cfg.DATA.DIV_DISP)
         new_size = new_size[:, :img_right.shape[2], :img_right.shape[3]]
-        print('new_size', new_size.shape)
+
         warp_img_left = disp_warp(img_right, -new_size, cuda=True)
         warp_img_right = disp_warp(img_left, new_size, cuda=True)
-        print('warp_img_left.shape', warp_img_left.shape)
-        print('warp_img_right.shape', warp_img_right.shape)
+        
         diff_left = torch.sum(torch.abs(img_left - warp_img_left), 1).view(b,1,*warp_img_left.shape[-2:])
         diff_right = torch.sum(torch.abs(img_right - warp_img_right), 1).view(b,1,*warp_img_right.shape[-2:])
         diff_2_left = nn.functional.adaptive_avg_pool2d(diff_left, (h, w))
@@ -432,43 +424,45 @@ class StereoDeblurNet(nn.Module):
         # aggregate features
         agg_left  = res3_3_left * (1.0-gate_left) + warp_convd_left * gate_left.repeat(1,c,1,1)
         agg_right = res3_3_right * (1.0-gate_right) + warp_convd_right * gate_right.repeat(1,c,1,1)
-        print('agg_left.shape', agg_left.shape)
-        print('agg_right.shape', agg_right.shape)
-        
 
         # decoder-left
         cat3_left = self.upconv3_i(torch.cat([res3_3_left, agg_left, depth_aware_left], 1))
-        print('depth_aware_left.shape', depth_aware_left.shape)
-        upconv3_left = self.upconv3_1(self.upconv3_2(self.upconv3_3(cat3_left)))     
-        print('upconv3', upconv3_left.shape)                  # upconv3 feature
+    
+        cat3_left = self.upconv_first(cat3_left)
+        cat3_left = self.upconv_second(cat3_left)
+        # upconv3_left = self.upconv3_1(self.upconv3_2(self.upconv3_3(cat3_left)))     
+        # print('upconv3', upconv3_left.shape)                  # upconv3 feature
 
-        upconv2_u_left = self.upconv2_u(upconv3_left)
-        print('upconv2_u_left.shape', upconv2_u_left.shape)
-        upconv2_u_left = upconv2_u_left[:, :, 0:128, 0:128]
-        print('upconv2_u_left.shape', upconv2_u_left.shape)
-        print('res3_3_left.shape', res3_3_left.shape)
-        cat2_left = self.upconv2_i(torch.cat([res2_2_left, upconv2_u_left],1))
-        upconv2_left = self.upconv2_1(self.upconv2_2(self.upconv2_3(cat2_left)))                       # upconv2 feature
-        upconv1_u_left = self.upconv1_u(upconv2_left)
-        cat1_left = self.upconv1_i(torch.cat([upconv2_u_left, upconv1_u_left], 1))
+        # upconv2_u_left = self.upconv2_u(upconv3_left)
+        # print('upconv2_u_left.shape', upconv2_u_left.shape)
+        # upconv2_u_left = upconv2_u_left[:, :, 0:128, 0:128]
+        # print('upconv2_u_left.shape', upconv2_u_left.shape)
+        # print('res3_3_left.shape', res3_3_left.shape)
+        # cat2_left = self.upconv2_i(torch.cat([res2_2_left, upconv2_u_left],1))
+        # upconv2_left = self.upconv2_1(self.upconv2_2(self.upconv2_3(cat2_left)))                       # upconv2 feature
+        # upconv1_u_left = self.upconv1_u(upconv2_left)
+        # cat1_left = self.upconv1_i(torch.cat([upconv2_u_left, upconv1_u_left], 1))
 
-        upconv1_left = self.upconv1_1(self.upconv1_2(self.upconv1_3(cat1_left)))                       # upconv1 feature
-        img_prd_left = self.img_prd(upconv1_left) + img_left                                           # predict img
+        # upconv1_left = self.upconv1_1(self.upconv1_2(self.upconv1_3(cat1_left)))                       # upconv1 feature
+        img_prd_left = self.img_prd(cat3_left) + img_left                                           # predict img
 
         # decoder-right
         cat3_right = self.upconv3_i(torch.cat([res3_3_right, agg_right, depth_aware_right], 1))
-        upconv3_right = self.upconv3_1(self.upconv3_2(self.upconv3_3(cat3_right)))                     # upconv3 feature
 
-        upconv2_u_right = self.upconv2_u(upconv3_right)
-        upconv2_u_right = upconv2_u_right[:, :, 0:res3_3_right.size()[2], 0:res3_3_right.size()[3]]
+        cat3_right = self.upconv_first(cat3_right)
+        cat3_right = self.upconv_second(cat3_right)
+        # upconv3_right = self.upconv3_1(self.upconv3_2(self.upconv3_3(cat3_right)))                     # upconv3 feature
+
+        # upconv2_u_right = self.upconv2_u(upconv3_right)
+        # upconv2_u_right = upconv2_u_right[:, :, 0:res3_3_right.size()[2], 0:res3_3_right.size()[3]]
         
-        cat2_right = self.upconv2_i(torch.cat([res3_3_right, upconv2_u_right], 1))
-        upconv2_right = self.upconv2_1(self.upconv2_2(self.upconv2_3(cat2_right)))                     # upconv2 feature
-        upconv1_u_right = self.upconv1_u(upconv2_right)
-        cat1_right = self.upconv1_i(torch.cat([res3_3_right, upconv1_u_right], 1))
+        # cat2_right = self.upconv2_i(torch.cat([res3_3_right, upconv2_u_right], 1))
+        # upconv2_right = self.upconv2_1(self.upconv2_2(self.upconv2_3(cat2_right)))                     # upconv2 feature
+        # upconv1_u_right = self.upconv1_u(upconv2_right)
+        # cat1_right = self.upconv1_i(torch.cat([res3_3_right, upconv1_u_right], 1))
 
-        upconv1_right = self.upconv1_1(self.upconv1_2(self.upconv1_3(cat1_right)))                     # upconv1 feature
-        img_prd_right = self.img_prd(upconv1_right) + img_right                                        # predict img
+        # upconv1_right = self.upconv1_1(self.upconv1_2(self.upconv1_3(cat1_right)))                     # upconv1 feature
+        img_prd_right = self.img_prd(cat3_right) + img_right                                        # predict img
 
         imgs_prd = [img_prd_left, img_prd_right]
 
