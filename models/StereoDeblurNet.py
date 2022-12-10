@@ -68,12 +68,24 @@ class Encoder(nn.Module):
     def forward(self, x, encoder_outs=None, decoder_outs=None):
         enc1 = self.encoder_level1(x)
         if (encoder_outs is not None) and (decoder_outs is not None):
+            if enc1.shape != encoder_outs[0].shape:
+                enc1 = F.interpolate(enc1, size=encoder_outs[0].shape[2:], mode='bilinear', align_corners=False)
+            if enc1.shape != decoder_outs[0].shape:
+                enc1 = F.interpolate(enc1, size=decoder_outs[0].shape[2:], mode='bilinear', align_corners=False)
+            if encoder_outs[0].shape != decoder_outs[0].shape:
+                encoder_outs[0] = F.interpolate(encoder_outs[0], size=decoder_outs[0].shape[2:], mode='bilinear', align_corners=False)
             enc1 = enc1 + self.csff_enc1(encoder_outs[0]) + self.csff_dec1(decoder_outs[0])
 
         x = self.down12(enc1)
 
         enc2 = self.encoder_level2(x)
         if (encoder_outs is not None) and (decoder_outs is not None):
+            if enc2.shape != encoder_outs[1].shape:
+                enc2 = F.interpolate(enc2, size=encoder_outs[1].shape[2:], mode='bilinear', align_corners=False)
+            if enc2.shape != decoder_outs[1].shape:
+                enc2 = F.interpolate(enc2, size=decoder_outs[1].shape[2:], mode='bilinear', align_corners=False)
+            if encoder_outs[1].shape != decoder_outs[1].shape:
+                encoder_outs[1] = F.interpolate(encoder_outs[1], size=decoder_outs[1].shape[2:], mode='bilinear', align_corners=False)
             enc2 = enc2 + self.csff_enc2(encoder_outs[1]) + self.csff_dec2(decoder_outs[1])
 
         x = self.down23(enc2)
@@ -152,6 +164,8 @@ class SkipUpSample(nn.Module):
 
     def forward(self, x, y):
         x = self.up(x)
+        if x.shape != y.shape:
+            y = F.interpolate(y, size=x.shape[2:], mode='bilinear', align_corners=False)
         x = x + y
         return x
 
@@ -331,6 +345,9 @@ class StereoDeblurNet(nn.Module):
 
         s1_sol_feat_left = self.up_scale1_feat(d1_1f_left[0])
         s1_sol_feat_right= self.up_scale1_feat(d1_1f_right[0])
+        if shfeat2_left.shape[2] != s1_sol_feat_left.shape[2]:
+            s1_sol_feat_left = F.interpolate(s1_sol_feat_left, size=(shfeat2_left.shape[2], shfeat2_left.shape[3]), mode='bilinear', align_corners=True)
+            s1_sol_feat_right= F.interpolate(s1_sol_feat_right,size=(shfeat2_right.shape[2],shfeat2_right.shape[3]),mode='bilinear',align_corners=True)
         fusion12_left = self.fusion12(torch.cat([shfeat2_left, s1_sol_feat_left], dim=1))
         fusion12_right= self.fusion12(torch.cat([shfeat2_right,s1_sol_feat_right], dim=1))
 
@@ -357,6 +374,9 @@ class StereoDeblurNet(nn.Module):
         shfeat3_right= self.shallow_feat3(img_right)
         s2_sol_feat_left = self.up_scale2_feat(d2_2f_left[0])
         s2_sol_feat_right= self.up_scale2_feat(d2_2f_right[0])
+        if shfeat3_left.shape[2] != s2_sol_feat_left.shape[2]:
+            s2_sol_feat_left = F.interpolate(s2_sol_feat_left, size=(shfeat3_left.shape[2], shfeat3_left.shape[3]), mode='bilinear', align_corners=True)
+            s2_sol_feat_right= F.interpolate(s2_sol_feat_right,size=(shfeat3_right.shape[2],shfeat3_right.shape[3]),mode='bilinear',align_corners=True)
         fusion23_left = self.fusion23(torch.cat([shfeat3_left, s2_sol_feat_left], dim=1))
         fusion23_right= self.fusion23(torch.cat([shfeat3_right,s2_sol_feat_right], dim=1))
 
@@ -443,7 +463,10 @@ class StereoDeblurNet(nn.Module):
         # upconv1_u_left = self.upconv1_u(upconv2_left)
         # cat1_left = self.upconv1_i(torch.cat([upconv2_u_left, upconv1_u_left], 1))
 
-        # upconv1_left = self.upconv1_1(self.upconv1_2(self.upconv1_3(cat1_left)))                       # upconv1 feature
+        # upconv1_left = self.upconv1_1(self.upconv1_2(self.upconv1_3(cat1_left)))                       # upconv1 
+        if img_left.shape[2] != 256:
+            img_left = nn.functional.interpolate(img_left, size=(256, 256), mode='bilinear')
+        
         img_prd_left = self.img_prd(cat3_left) + img_left                                           # predict img
 
         # decoder-right
@@ -461,7 +484,9 @@ class StereoDeblurNet(nn.Module):
         # upconv1_u_right = self.upconv1_u(upconv2_right)
         # cat1_right = self.upconv1_i(torch.cat([res3_3_right, upconv1_u_right], 1))
 
-        # upconv1_right = self.upconv1_1(self.upconv1_2(self.upconv1_3(cat1_right)))                     # upconv1 feature
+        # upconv1_right = self.upconv1_1(self.upconv1_2(self.upconv1_3(cat1_right)))                # upconv1 
+        if img_right.shape[2] != 256:
+            img_right = nn.functional.interpolate(img_right, size=(256, 256), mode='bilinear')                # upconv1 feature
         img_prd_right = self.img_prd(cat3_right) + img_right                                        # predict img
 
         imgs_prd = [img_prd_left, img_prd_right]

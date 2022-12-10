@@ -90,6 +90,10 @@ def test_stereodeblurnet(cfg, epoch_idx, test_data_loader, dispnet, deblurnet, t
             disp_EPE = cfg.DATA.DIV_DISP * realEPE(output_disps, ground_truth_disps, occs)
             disp_EPEs.update(disp_EPE.item(), cfg.CONST.TEST_BATCH_SIZE)
 
+            if imgs_prd[0].shape[2] != img_clear_left.shape[2] or imgs_prd[0].shape[3] != img_clear_left.shape[3]:
+                imgs_prd[0] = torch.nn.functional.interpolate(imgs_prd[0], size=(img_clear_left.shape[2], img_clear_left.shape[3]), mode='bilinear', align_corners=True)
+                imgs_prd[1] = torch.nn.functional.interpolate(imgs_prd[1], size=(img_clear_right.shape[2], img_clear_right.shape[3]), mode='bilinear', align_corners=True)
+
             img_PSNR = (PSNR(imgs_prd[0], img_clear_left) + PSNR(imgs_prd[1], img_clear_right)) / 2
             img_PSNRs.update(img_PSNR.item(), cfg.CONST.TRAIN_BATCH_SIZE)
 
