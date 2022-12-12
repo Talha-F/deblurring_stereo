@@ -1,7 +1,7 @@
 import numpy as np
 from math import ceil
 import matplotlib.pyplot as plt
-from motion_blur.generate_trajectory import Trajectory
+from generate_trajectory import Trajectory
 
 
 class PSF(object):
@@ -23,7 +23,7 @@ class PSF(object):
         self.iters = len(self.trajectory)
         self.PSFs = []
 
-    def fit(self, show=False, save=False):
+    def fit(self, show=False, save=True):
         PSF = np.zeros(self.canvas)
 
         triangle_fun = lambda x: np.maximum(0, (1 - np.abs(x)))

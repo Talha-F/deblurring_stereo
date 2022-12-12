@@ -5,3 +5,10 @@
 *.txt
 *.pth
 *.html
+blurred_image/
+checkpoints/
+dataset_test/
+FINAL/
+final_dataset/
+psf/
+trajectory/

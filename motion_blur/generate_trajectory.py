@@ -37,7 +37,7 @@ class Trajectory(object):
         self.big_expl_count = None
         self.x = None
 
-    def fit(self, show=False, save=False):
+    def fit(self, show=False, save=True):
         """
         Generate motion, you can save or plot, coordinates of motion you can find in x property.
         Also you can fin properties tot_length, big_expl_count.
@@ -53,7 +53,7 @@ class Trajectory(object):
         # probability of big shake
         prob_big_shake = 0.2 * np.random.uniform(0, 1)
         # term determining, at each sample, the random component of the new direction
-        gaussian_shake = 10 * np.random.uniform(0, 1)
+        gaussian_shake = 200 * np.random.uniform(0, 1)
         init_angle = 360 * np.random.uniform(0, 1)
 
         img_v0 = np.sin(np.deg2rad(init_angle))
