@@ -11,8 +11,8 @@
   <img width=100% src="https://user-images.githubusercontent.com/14334509/57179915-e9abd800-6eb5-11e9-86db-2c696fa69bad.png">
 </p> -->
 
-<!-- Download the dataset (192.5GB, unzipped 202.2GB) from [[Data Website]](https://stereoblur.shangchenzhou.com/).
- -->
+Download the dataset (192.5GB, unzipped 202.2GB) from [[Dropbox]]([https://stereoblur.shangchenzhou.com/](https://www.dropbox.com/s/12h9b4u5eysi5k0/kitti_final_788_Split.tar)).
+
 ## Pretrained Models
 
 You could download the pretrained model (34.8MB) of DAVANet from [[Here]](https://drive.google.com/file/d/1oVhKnPe_zrRa_JQUinW52ycJ2EGoAcHG/view?usp=sharing). 
