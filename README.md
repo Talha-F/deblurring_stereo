@@ -1,6 +1,5 @@
-# DAVANet
+# Deblurring Stereo
 
-Code repo for the paper "DAVANet: Stereo Deblurring with View Aggregation" (CVPR'19, Oral).&nbsp; [[Paper]](http://openaccess.thecvf.com/content_CVPR_2019/papers/Zhou_DAVANet_Stereo_Deblurring_With_View_Aggregation_CVPR_2019_paper.pdf) &nbsp; [[Project Page]](https://shangchenzhou.com/projects/davanet/)&nbsp;
 
 <p align="center">
   <img width=95% src="https://user-images.githubusercontent.com/14334509/57180102-f9c4b700-6eb7-11e9-927b-42a81ad39d7d.png">
@@ -76,23 +75,11 @@ python runner.py
   <img width=100% src="https://user-images.githubusercontent.com/14334509/57179916-ea446e80-6eb5-11e9-8eb6-98fb878810e7.png">
 </p>
 
-## Citation
-If you find DAVANet, or Stereo Blur Dataset useful in your research, please consider citing:
-
-```
-@inproceedings{zhou2019davanet,
-  title={{DAVANet}: Stereo Deblurring with View Aggregation},
-  author={Zhou, Shangchen and Zhang, Jiawei and Zuo, Wangmeng and Xie, Haozhe and Pan, Jinshan and Ren, Jimmy},
-  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
-  year={2019}
-}
-```
-
 ## Contact
 
 We are glad to hear if you have any suggestions and questions.
 
-Please send email to shangchenzhou@gmail.com
+Please send email to seohyeol@andrew.cmu.edu
 
 ## Reference
 [1] Zhe Hu, Li Xu, and Ming-Hsuan Yang. Joint depth estimation and camera shake removal from single blurry image. In *CVPR*, 2014.
