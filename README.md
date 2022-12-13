@@ -1,18 +1,18 @@
 # Deblurring Stereo
-
+<!-- 
 
 <p align="center">
   <img width=95% src="https://user-images.githubusercontent.com/14334509/57180102-f9c4b700-6eb7-11e9-927b-42a81ad39d7d.png">
 </p>
-
+ -->
 
 ## Stereo Blur Dataset
-<p align="center">
+<!-- <p align="center">
   <img width=100% src="https://user-images.githubusercontent.com/14334509/57179915-e9abd800-6eb5-11e9-86db-2c696fa69bad.png">
-</p>
+</p> -->
 
-Download the dataset (192.5GB, unzipped 202.2GB) from [[Data Website]](https://stereoblur.shangchenzhou.com/).
-
+<!-- Download the dataset (192.5GB, unzipped 202.2GB) from [[Data Website]](https://stereoblur.shangchenzhou.com/).
+ -->
 ## Pretrained Models
 
 You could download the pretrained model (34.8MB) of DAVANet from [[Here]](https://drive.google.com/file/d/1oVhKnPe_zrRa_JQUinW52ycJ2EGoAcHG/view?usp=sharing). 
