@@ -11,7 +11,7 @@
   <img width=100% src="https://user-images.githubusercontent.com/14334509/57179915-e9abd800-6eb5-11e9-86db-2c696fa69bad.png">
 </p> -->
 
-Download the dataset (192.5GB, unzipped 202.2GB) from [[Dropbox]]([https://stereoblur.shangchenzhou.com/](https://www.dropbox.com/s/12h9b4u5eysi5k0/kitti_final_788_Split.tar)).
+Download the dataset (2.06G, unzipped 2.06G) from [[Dropbox]]([https://www.dropbox.com/s/12h9b4u5eysi5k0/kitti_final_788_Split.tar](https://www.dropbox.com/s/12h9b4u5eysi5k0/kitti_final_788_Split.tar)).
 
 ## Pretrained Models
 
