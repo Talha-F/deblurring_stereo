@@ -2,13 +2,13 @@
 
 
 <p align="center">
-  <img width=95% src="https://user-images.githubusercontent.com/33317140/207792444-b49c6a00-253a-4857-a11d-e8ab5424edb5.png">
+  <img width=100% src="https://user-images.githubusercontent.com/33317140/207792447-77962acf-1ed1-455b-a1f1-2a811e86c052.png">
 </p>
 
 
 ## Stereo Blur Dataset
 <p align="center">
-  <img width=100% src="https://user-images.githubusercontent.com/33317140/207792447-77962acf-1ed1-455b-a1f1-2a811e86c052.png">
+  <img width=95% src="https://user-images.githubusercontent.com/33317140/207792444-b49c6a00-253a-4857-a11d-e8ab5424edb5.png">
 </p>
 We build a dataset from the [[KITTI Stereo Dataset]](https://www.cvlibs.net/datasets/kitti/eval_stereo.php) applying blurring method from [[DeblurGAN]](https://github.com/KupynOrest/DeblurGAN).
 
