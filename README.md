@@ -11,11 +11,31 @@
   <img width=100% src="https://user-images.githubusercontent.com/14334509/57179915-e9abd800-6eb5-11e9-86db-2c696fa69bad.png">
 </p> -->
 
-Download the dataset (2.06G, unzipped 2.06G) from [[Dropbox]]([https://www.dropbox.com/s/12h9b4u5eysi5k0/kitti_final_788_Split.tar](https://www.dropbox.com/s/12h9b4u5eysi5k0/kitti_final_788_Split.tar)).
+Download the dataset (2.06G, unzipped 2.06G) from [[Dropbox]](https://www.dropbox.com/s/12h9b4u5eysi5k0/kitti_final_788_Split.tar).
+
+You have to unzip files and make following structure of directories.
+
+├── input \
+├──── Test \
+├────── disparity_left \
+├────── disparity_right \
+├────── image_left \
+├────── image_right \
+├────── image_left_blur_ga \
+├────── image_right_blur_ga \
+├──── Train \
+├────── disparity_left \
+├────── disparity_right \
+├────── image_left \
+├────── image_right \
+├────── image_left_blur_ga \
+└────── image_right_blur_ga \
+
+You can make disparity maps with `disparity_gen.ipynb`.
 
 ## Pretrained Models
 
-You could download the pretrained model (34.8MB) of DAVANet from [[Here]](https://drive.google.com/file/d/1oVhKnPe_zrRa_JQUinW52ycJ2EGoAcHG/view?usp=sharing). 
+You could download the pretrained model (34.8MB) of DAVANet which is our baseline from [[Here]](https://drive.google.com/file/d/1oVhKnPe_zrRa_JQUinW52ycJ2EGoAcHG/view?usp=sharing). 
 
 (Note that the model does not need to unzip, just load it directly.)
 
@@ -24,14 +44,11 @@ You could download the pretrained model (34.8MB) of DAVANet from [[Here]](https:
 - Linux (tested on Ubuntu 14.04/16.04)
 - Python 2.7+
 - Pytorch 0.4.1
-- easydict
-- tensorboardX
-- pyexr
 
 #### Installation
 
 ```
-pip install -r requirements.txt
+conda env create -f environment.yml
 ```
 
 ## Get Started
@@ -69,12 +86,16 @@ You can also use the following simple command, with changing the settings in con
 python runner.py
 ```
 
+```
+tensorboard --logdir=[logdir path]
+```
+<!-- 
 ## Results on the testing dataset
 
 <p align="center">
   <img width=100% src="https://user-images.githubusercontent.com/14334509/57179916-ea446e80-6eb5-11e9-8eb6-98fb878810e7.png">
 </p>
-
+-->
 ## Contact
 
 We are glad to hear if you have any suggestions and questions.
@@ -82,15 +103,19 @@ We are glad to hear if you have any suggestions and questions.
 Please send email to seohyeol@andrew.cmu.edu
 
 ## Reference
-[1] Zhe Hu, Li Xu, and Ming-Hsuan Yang. Joint depth estimation and camera shake removal from single blurry image. In *CVPR*, 2014.
+[1] Zhou, Shangchen, et al. Davanet: Stereo deblurring with view aggregation. Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2019.
 
-[2] Seungjun Nah, Tae Hyun Kim, and Kyoung Mu Lee. Deep multi-scale convolutional neural network for dynamic scene deblurring. In *CVPR*, 2017.
+[2] Zhe Hu, Li Xu, and Ming-Hsuan Yang. Joint depth estimation and camera shake removal from single blurry image. In *CVPR*, 2014.
 
-[3] Orest Kupyn, Volodymyr Budzan, Mykola Mykhailych, Dmytro Mishkin, and Jiri Matas. Deblurgan: Blind motion deblurring using conditional adversarial networks. In CVPR, 2018.
+[3] Seungjun Nah, Tae Hyun Kim, and Kyoung Mu Lee. Deep multi-scale convolutional neural network for dynamic scene deblurring. In *CVPR*, 2017.
 
-[4] Jiawei Zhang, Jinshan Pan, Jimmy Ren, Yibing Song, Lin- chao Bao, Rynson WH Lau, and Ming-Hsuan Yang. Dynamic scene deblurring using spatially variant recurrent neural networks. In *CVPR*, 2018. 
+[4] Orest Kupyn, Volodymyr Budzan, Mykola Mykhailych, Dmytro Mishkin, and Jiri Matas. Deblurgan: Blind motion deblurring using conditional adversarial networks. In CVPR, 2018.
 
-[5] Xin Tao, Hongyun Gao, Xiaoyong Shen, Jue Wang, and Jiaya Jia. Scale-recurrent network for deep image deblurring. In *CVPR*, 2018.
+[5] Jiawei Zhang, Jinshan Pan, Jimmy Ren, Yibing Song, Lin- chao Bao, Rynson WH Lau, and Ming-Hsuan Yang. Dynamic scene deblurring using spatially variant recurrent neural networks. In *CVPR*, 2018. 
+
+[6] Xin Tao, Hongyun Gao, Xiaoyong Shen, Jue Wang, and Jiaya Jia. Scale-recurrent network for deep image deblurring. In *CVPR*, 2018.
+
+[7] Kim, Kiyeon, Seungyong Lee, and Sunghyun Cho. MSSNet: Multi-Scale-Stage Network for Single Image Deblurring. arXiv preprint arXiv:2202.09652 (2022).
 
 ## License
 
