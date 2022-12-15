@@ -11,7 +11,7 @@ This repository is for deblurring model. Our goal is to find more high-performin
 <p align="center">
   <img width=85% src="https://user-images.githubusercontent.com/33317140/207792444-b49c6a00-253a-4857-a11d-e8ab5424edb5.png">
 </p>
-We built a dataset from the [[KITTI Stereo Dataset]](https://www.cvlibs.net/datasets/kitti/eval_stereo.php) applying blurring method from [[DeblurGAN]](https://github.com/KupynOrest/DeblurGAN).
+We built a dataset from the [KITTI Stereo Dataset](https://www.cvlibs.net/datasets/kitti/eval_stereo.php) applying blurring method from [DeblurGAN](https://github.com/KupynOrest/DeblurGAN).
 
 This data has patterns of real blurred images from the driving scene. 
 
