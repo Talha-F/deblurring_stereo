@@ -1,5 +1,6 @@
 # Deblurring Stereo
 
+This repository is for deblurring model. Our goal is to find more high-performing methods to remove blurring from stereo video and create clear images in real-time. 
 
 <p align="center">
   <img width=100% src="https://user-images.githubusercontent.com/33317140/207792447-77962acf-1ed1-455b-a1f1-2a811e86c052.png">
@@ -10,7 +11,7 @@
 <p align="center">
   <img width=95% src="https://user-images.githubusercontent.com/33317140/207792444-b49c6a00-253a-4857-a11d-e8ab5424edb5.png">
 </p>
-We build a dataset from the [[KITTI Stereo Dataset]](https://www.cvlibs.net/datasets/kitti/eval_stereo.php) applying blurring method from [[DeblurGAN]](https://github.com/KupynOrest/DeblurGAN).
+We built a dataset from the [[KITTI Stereo Dataset]](https://www.cvlibs.net/datasets/kitti/eval_stereo.php) applying blurring method from [[DeblurGAN]](https://github.com/KupynOrest/DeblurGAN).
 
 This data has patterns of real blurred images from the driving scene. 
 
@@ -118,7 +119,9 @@ Please send email to seohyeol@andrew.cmu.edu
 
 [6] Xin Tao, Hongyun Gao, Xiaoyong Shen, Jue Wang, and Jiaya Jia. Scale-recurrent network for deep image deblurring. In *CVPR*, 2018.
 
-[7] Kim, Kiyeon, Seungyong Lee, and Sunghyun Cho. MSSNet: Multi-Scale-Stage Network for Single Image Deblurring. arXiv preprint arXiv:2202.09652 (2022).
+[7] Kim, Kiyeon, Seungyong Lee, and Sunghyun Cho. MSSNet: Multi-Scale-Stage Network for Single Image Deblurring. arXiv preprint arXiv:2202.09652, 2022.
+
+[8] Kupyn, Orest, et al. Deblurgan: Blind motion deblurring using conditional adversarial networks. Proceedings of the IEEE conference on computer vision and pattern recognition. 2018.
 
 ## License
 
