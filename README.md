@@ -90,6 +90,8 @@ You can also use the following simple command, with changing the settings in con
 python runner.py
 ```
 
+You can see the training log from tensorboard.
+
 ```
 tensorboard --logdir=[logdir path]
 ```
