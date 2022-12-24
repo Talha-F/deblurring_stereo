@@ -44,7 +44,7 @@ def realEPE(output, target, occ_mask):
 # Deblurring Loss
 #
 def mseLoss(output, target):
-    mse_loss = nn.MSELoss(reduction ='elementwise_mean')
+    mse_loss = nn.MSELoss(reduction ='mean')
     MSE = mse_loss(output, target)
     return MSE
 

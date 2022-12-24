@@ -215,12 +215,12 @@ class StereoDeblurLoader:
             img_right_blur_path = self.img_right_blur_path_template % (name, sample_name)
             disp_left_path = self.disp_left_path_template % (name, sample_name)
             disp_right_path = self.disp_right_path_template % (name, sample_name)
-            print(img_left_blur_path, os.path.exists(img_left_blur_path))
-            print(img_right_blur_path, os.path.exists(img_right_blur_path))
-            print(img_left_clear_path, os.path.exists(img_left_clear_path))
-            print(img_right_clear_path, os.path.exists(img_right_clear_path))
-            print(disp_left_path, os.path.exists(disp_left_path))
-            print(disp_right_path, os.path.exists(disp_right_path))
+            # print(img_left_blur_path, os.path.exists(img_left_blur_path))
+            # print(img_right_blur_path, os.path.exists(img_right_blur_path))
+            # print(img_left_clear_path, os.path.exists(img_left_clear_path))
+            # print(img_right_clear_path, os.path.exists(img_right_clear_path))
+            # print(disp_left_path, os.path.exists(disp_left_path))
+            # print(disp_right_path, os.path.exists(disp_right_path))
             if os.path.exists(img_left_blur_path) and os.path.exists(img_right_blur_path) and os.path.exists(
                     img_left_clear_path) and os.path.exists(img_right_clear_path) and os.path.exists(
                     disp_left_path) and os.path.exists(disp_right_path):
